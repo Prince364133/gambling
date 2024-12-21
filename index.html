@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Controlled Website</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="timer" id="timer">00:00:00</div>
+    </header>
+
+    <div class="slideshow" id="slideshow">
+        <img src="https://via.placeholder.com/1920x300?text=Slide+1" alt="Slide 1">
+        <img src="https://via.placeholder.com/1920x300?text=Slide+2" alt="Slide 2">
+        <img src="https://via.placeholder.com/1920x300?text=Slide+3" alt="Slide 3">
+    </div>
+
+    <div class="content">
+        <h1>Welcome to the Admin-Controlled Dashboard</h1>
+        <p>Manage the boxes, images, and winner name easily with admin access.</p>
+        <div class="box" id="dynamicBoxes"></div>
+        <div class="winner" id="winner">Winner: None</div>
+        <div class="image-box" id="uploadedImageBox">
+            <h3>Uploaded Images</h3>
+            <div id="imagePreviews"></div>
+        </div>
+    </div>
+
+    <button class="admin" id="adminBtn">+</button>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="admin-modal" id="adminModal">
+        <h2>Admin Panel</h2>
+        <input type="password" id="adminPassword" placeholder="Enter Password">
+        <div id="adminInputs" style="display: none;">
+            <input type="number" id="numberOfBoxes" placeholder="Number of Boxes">
+            <div id="boxInputs"></div>
+            <input type="text" id="inputWinner" placeholder="Winner Name">
+            <input type="file" id="imageUploader" accept="image/*" multiple>
+            <input type="file" id="slideImageUploader" accept="image/*" multiple>
+            <button id="saveBtn">Save</button>
+        </div>
+        <button id="loginBtn">Login</button>
+    </div>
+
+    <footer>
+        <p class="footer-text">&copy; 2024 YourWebsite | Designed with care</p>
+    </footer>
+
+    <script src="script.js"></script>
+  <script>// Timer Logic
+function startTimer() {
+    const timerElement = document.getElementById("timer");
+    setInterval(() => {
+        const now = new Date();
+        timerElement.textContent = now.toLocaleTimeString();
+    }, 1000);
+}
+startTimer();
+
+// Slideshow Logic
+let currentSlide = 0;
+const slideshow = document.getElementById("slideshow");
+const slides = slideshow.querySelectorAll("img");
+setInterval(() => {
+    slides[currentSlide].style.opacity = "0";
+    currentSlide = (currentSlide + 1) % slides.length;
+    slides[currentSlide].style.opacity = "1";
+}, 3000);
+
+// Admin Panel Logic
+const adminBtn = document.getElementById("adminBtn");
+const overlay = document.getElementById("overlay");
+const adminModal = document.getElementById("adminModal");
+const adminPassword = document.getElementById("adminPassword");
+const adminInputs = document.getElementById("adminInputs");
+const numberOfBoxes = document.getElementById("numberOfBoxes");
+const boxInputs = document.getElementById("boxInputs");
+const inputWinner = document.getElementById("inputWinner");
+const imageUploader = document.getElementById("imageUploader");
+const slideImageUploader = document.getElementById("slideImageUploader");
+const saveBtn = document.getElementById("saveBtn");
+const loginBtn = document.getElementById("loginBtn");
+const dynamicBoxes = document.getElementById("dynamicBoxes");
+const winnerBox = document.getElementById("winner");
+const imagePreviews = document.getElementById("imagePreviews");
+
+let isAdmin = false;
+
+adminBtn.addEventListener("click", () => {
+    overlay.style.display = "block";
+    adminModal.style.display = "block";
+});
+
+overlay.addEventListener("click", closeAdminModal);
+
+loginBtn.addEventListener("click", () => {
+    if (adminPassword.value === "3641") {
+        adminPassword.style.display = "none";
+        loginBtn.style.display = "none";
+        adminInputs.style.display = "block";
+        isAdmin = true;
+    } else {
+        alert("Incorrect password!");
+    }
+});
+
+numberOfBoxes.addEventListener("input", () => {
+    const number = parseInt(numberOfBoxes.value, 10);
+    boxInputs.innerHTML = '';  // Clear previous inputs
+    for (let i = 0; i < number; i++) {
+        const boxInput = document.createElement("input");
+        boxInput.placeholder = `Box ${i + 1}`;
+        boxInputs.appendChild(boxInput);
+    }
+});
+
+saveBtn.addEventListener("click", () => {
+    if (isAdmin) {
+        // Save winner name
+        winnerBox.textContent = `Winner: ${inputWinner.value}`;
+
+        // Save box values
+        const boxes = boxInputs.querySelectorAll("input");
+        dynamicBoxes.innerHTML = '';
+        boxes.forEach((box, index) => {
+            const boxDiv = document.createElement("div");
+            boxDiv.textContent = box.value || `Box ${index + 1}`;
+            dynamicBoxes.appendChild(boxDiv);
+        });
+
+        // Handle image uploads for page content
+        const files = imageUploader.files;
+        if (files.length > 0) {
+            imagePreviews.innerHTML = '';
+            for (let i = 0; i < Math.min(files.length, 5); i++) {
+                const img = document.createElement("img");
+                img.src = URL.createObjectURL(files[i]);
+                imagePreviews.appendChild(img);
+            }
+        }
+
+        // Handle image uploads for slideshow only
+        const slideFiles = slideImageUploader.files;
+        if (slideFiles.length > 0) {
+            const slideshowImages = Array.from(slideImageUploader.files).map(file => {
+                const img = document.createElement("img");
+                img.src = URL.createObjectURL(file);
+                return img;
+            });
+
+            // Update slideshow with new images
+            slideshow.innerHTML = '';
+            slideshowImages.forEach(img => {
+                slideshow.appendChild(img);
+            });
+        }
+
+        closeAdminModal();
+    }
+});
+
+function closeAdminModal() {
+    overlay.style.display = "none";
+    adminModal.style.display = "none";
+}</script>
+</body>
+</html>
